@@ -17,9 +17,10 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("attendance_system.log"),
+        #logging.FileHandler("attendance_system.log"),
         logging.StreamHandler(sys.stdout)
     ]
+    
 )
 
 logger = logging.getLogger(__name__)
@@ -108,9 +109,9 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "main:app",
-        host=config.HOST,
-        port=config.PORT,
-        reload=config.DEBUG,
-        log_level="info"
-    )
+    "main:app",
+    host="0.0.0.0",
+    port=10000,
+    reload=False,
+    log_level="info"
+)
