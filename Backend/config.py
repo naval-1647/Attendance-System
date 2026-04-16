@@ -5,7 +5,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # MongoDB Configuration
-MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017/")
+MONGODB_URL = os.getenv(
+    "MONGODB_URL",
+    "mongodb+srv://naval_jha:32rBEXkdijf7Eez7@cluster0.hqbexhk.mongodb.net/",
+)
 MONGODB_DB_NAME = os.getenv("MONGODB_DB_NAME", "attendance_system")
 
 # Database collections
