@@ -14,14 +14,21 @@ Frontend/npm-debug.log*
 Frontend/yarn-debug.log*
 Frontend/yarn-error.log*
 
-# Secret and config files
-Backend/.env
-Backend/.env.*
-Backend/config.py
-config.py
+# Environment files
+.env
+**/.env
+**/.env.*
+!**/.env.example
 
-# Logs
+# Secrets and generated data
+media/
+db.sqlite3
+*.sqlite3
+*.sqlite
 *.log
+*.cache
+.pytest_cache/
+.mypy_cache/
 
 # OS files
 .DS_Store

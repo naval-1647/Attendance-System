@@ -143,7 +143,7 @@ This is a Python 3.13+ compatibility issue. Solutions:
 
 1. **Check connection string in .env:**
    ```
-   MONGODB_URL=mongodb+srv://naval_jha:32rBEXkdijf7Eez7@cluster0.hqbexhk.mongodb.net/
+   MONGODB_URL=mongodb+srv://<username>:<password>@cluster0.example.mongodb.net/
    ```
 
 2. **Verify network connection:**

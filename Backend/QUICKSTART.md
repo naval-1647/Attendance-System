@@ -18,7 +18,7 @@ cp .env.example .env
 ### 2. Configure MongoDB
 Edit `.env` with your MongoDB credentials:
 ```
-MONGODB_URL=mongodb+srv://naval_jha:32rBEXkdijf7Eez7@cluster0.hqbexhk.mongodb.net/
+MONGODB_URL=mongodb+srv://<username>:<password>@cluster0.example.mongodb.net/
 MONGODB_DB_NAME=attendance_system
 ```
 
