@@ -1,0 +1,20 @@
+fastapi>=0.100.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+motor>=3.3.0
+pymongo>=4.6.0
+Pillow>=9.0.0
+numpy>=1.23.0
+python-dotenv>=1.0.0
+apscheduler>=3.10.0
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+httpx>=0.25.0
+# Face detection using OpenCV (Haar Cascades) - Works without building dlib
+opencv-python>=4.5.0
+# Optional: For advanced face recognition features (requires building dlib from source)
+# Install separately: pip install face-recognition
+# Or use conda: conda install -c conda-forge face-recognition
+# face-recognition>=1.3.0
+# face-recognition-models>=0.3.0

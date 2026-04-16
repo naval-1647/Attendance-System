@@ -1,0 +1,32 @@
+# Python
+Backend/__pycache__/
+Backend/*.py[cod]
+Backend/*.pyo
+Backend/*.pyd
+Backend/venv/
+
+# Virtual environment
+venv/
+
+# Node
+Frontend/node_modules/
+Frontend/npm-debug.log*
+Frontend/yarn-debug.log*
+Frontend/yarn-error.log*
+
+# Secret and config files
+Backend/.env
+Backend/.env.*
+Backend/config.py
+config.py
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/

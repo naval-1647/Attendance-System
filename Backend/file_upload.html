@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System - File Upload</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab.active {
+            background: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .content {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 40px 20px;
+            background: #f8f9fa;
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #e9ecef;
+            border-color: #5568d3;
+        }
+
+        .file-input-label.has-file {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .file-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .file-text {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background: #51cf66;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            background: #40c057;
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .required {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Attendance System</h1>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('register')">Register Employee</button>
+            <button class="tab" onclick="switchTab('attendance')">Mark Attendance</button>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="register" class="content active">
+            <h2 style="margin-bottom: 20px;">Employee Registration</h2>
+            <form id="registerForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="regName">Full Name <span class="required">*</span></label>
+                    <input type="text" id="regName" required placeholder="Enter employee name">
+                </div>
+
+                <div class="form-group">
+                    <label for="regDesignation">Designation <span class="required">*</span></label>
+                    <input type="text" id="regDesignation" required placeholder="e.g., Software Engineer">
+                </div>
+
+                <div class="form-group">
+                    <label for="regEmail">Email (Optional)</label>
+                    <input type="email" id="regEmail" placeholder="employee@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Employee Photo <span class="required">*</span></label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="regImage" accept="image/*" required onchange="handleFileSelect('reg')">
+                        <label for="regImage" class="file-input-label" id="regFileLabel">
+                            <div class="file-icon">📁</div>
+                            <div class="file-text">Click to choose an image file</div>
+                            <div class="file-name" id="regFileName"></div>
+                        </label>
+                    </div>
+                    <div class="image-preview" id="regPreview">
+                        <img id="regPreviewImg" alt="Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="regSubmitBtn">
+                    Register Employee
+                </button>
+
+                <div class="loading" id="regLoading">Processing...</div>
+                <div class="message" id="regMessage"></div>
+            </form>
+        </div>
+
+        <!-- Attendance Form -->
+        <div id="attendance" class="content">
+            <h2 style="margin-bottom: 20px;">Mark Attendance</h2>
+            <form id="attendanceForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Upload Your Photo for Attendance <span class="required">*</span></label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="attImage" accept="image/*" required onchange="handleFileSelect('att')">
+                        <label for="attImage" class="file-input-label" id="attFileLabel">
+                            <div class="file-icon">📁</div>
+                            <div class="file-text">Click to choose an image file</div>
+                            <div class="file-name" id="attFileName"></div>
+                        </label>
+                    </div>
+                    <div class="image-preview" id="attPreview">
+                        <img id="attPreviewImg" alt="Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="attSubmitBtn">
+                    Mark Attendance
+                </button>
+
+                <div class="loading" id="attLoading">Processing...</div>
+                <div class="message" id="attMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+        let selectedFiles = { reg: null, att: null };
+
+        // Handle file selection
+        function handleFileSelect(type) {
+            const fileInput = document.getElementById(`${type}Image`);
+            const fileLabel = document.getElementById(`${type}FileLabel`);
+            const fileName = document.getElementById(`${type}FileName`);
+            const preview = document.getElementById(`${type}Preview`);
+            const previewImg = document.getElementById(`${type}PreviewImg`);
+
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                selectedFiles[type] = file;
+
+                // Update file label
+                fileName.textContent = file.name;
+                fileLabel.classList.add('has-file');
+
+                // Show image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+        }
+
+        // Show message
+        function showMessage(type, message, messageType) {
+            const messageEl = document.getElementById(`${type}Message`);
+            messageEl.textContent = message;
+            messageEl.className = `message ${messageType}`;
+            setTimeout(() => {
+                messageEl.className = 'message';
+            }, 5000);
+        }
+
+        // Registration form submit
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('regName').value.trim();
+            const designation = document.getElementById('regDesignation').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const imageFile = selectedFiles.reg;
+
+            // Validate all required fields
+            if (!name) {
+                showMessage('reg', '❌ Please enter employee name', 'error');
+                return;
+            }
+            if (!designation) {
+                showMessage('reg', '❌ Please enter designation', 'error');
+                return;
+            }
+            if (!imageFile) {
+                showMessage('reg', '❌ Please select an image file', 'error');
+                return;
+            }
+
+            const loading = document.getElementById('regLoading');
+            const submitBtn = document.getElementById('regSubmitBtn');
+
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('designation', designation);
+                if (email) {
+                    formData.append('email', email);
+                }
+                formData.append('image', imageFile);
+
+                console.log('Registering:', { name, designation, email, file: imageFile.name });
+
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok) {
+                    showMessage('reg', `✅ Success! Employee registered. User ID: ${data.user_id}`, 'success');
+                    document.getElementById('registerForm').reset();
+                    selectedFiles.reg = null;
+                    document.getElementById('regFileName').textContent = '';
+                    document.getElementById('regFileLabel').classList.remove('has-file');
+                    document.getElementById('regPreview').style.display = 'none';
+                } else {
+                    const errorMsg = data.detail || JSON.stringify(data);
+                    console.error('Registration error:', errorMsg);
+                    showMessage('reg', `❌ Error: ${errorMsg}`, 'error');
+                }
+            } catch (err) {
+                console.error('Network error:', err);
+                showMessage('reg', '❌ Network error: ' + err.message, 'error');
+            } finally {
+                loading.classList.remove('show');
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Attendance form submit
+        document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const imageFile = selectedFiles.att;
+
+            if (!imageFile) {
+                showMessage('att', '❌ Please select an image file', 'error');
+                return;
+            }
+
+            const loading = document.getElementById('attLoading');
+            const submitBtn = document.getElementById('attSubmitBtn');
+
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('image', imageFile);
+
+                console.log('Marking attendance with file:', imageFile.name);
+
+                const response = await fetch(`${API_URL}/face-attendance`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok) {
+                    const icon = data.attendance_type === 'LOGIN' ? '👋' : '👋';
+                    showMessage('att', `${icon} ${data.message}`, 'success');
+                    document.getElementById('attendanceForm').reset();
+                    selectedFiles.att = null;
+                    document.getElementById('attFileName').textContent = '';
+                    document.getElementById('attFileLabel').classList.remove('has-file');
+                    document.getElementById('attPreview').style.display = 'none';
+                } else {
+                    const errorMsg = data.detail || JSON.stringify(data);
+                    console.error('Attendance error:', errorMsg);
+                    showMessage('att', `❌ Error: ${errorMsg}`, 'error');
+                }
+            } catch (err) {
+                console.error('Network error:', err);
+                showMessage('att', '❌ Network error: ' + err.message, 'error');
+            } finally {
+                loading.classList.remove('show');
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

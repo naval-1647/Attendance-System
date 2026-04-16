@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Attendance Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .control-group input,
+        .control-group button {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .control-group input {
+            width: 200px;
+        }
+
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .control-group button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .control-group button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .records-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+
+        thead {
+            background: #f0f0f0;
+            border-bottom: 2px solid #ddd;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            font-size: 13px;
+            text-transform: uppercase;
+            white-space: normal;
+            line-height: 1.4;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .time {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .employee-photo {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid #ddd;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .employee-photo:hover {
+            transform: scale(1.15);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .no-photo {
+            color: #999;
+            font-size: 12px;
+            font-style: italic;
+            display: block;
+            text-align: center;
+        }
+
+        .photo-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            margin-top: 0 !important;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: black;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .control-group input {
+                width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Daily Attendance Report</h1>
+
+        <div class="nav-links">
+            <a href="http://localhost:8000/" class="nav-button">← Home</a>
+            <a href="http://localhost:8000/camera" class="nav-button">📷 Mark Attendance</a>
+            <a href="http://localhost:8000/upload" class="nav-button">📝 Register</a>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="dateInput">Select Date:</label>
+                <input 
+                    type="date" 
+                    id="dateInput" 
+                    value=""
+                >
+            </div>
+            <div class="control-group">
+                <button onclick="fetchAttendance()">🔍 View Attendance</button>
+            </div>
+            <div class="control-group">
+                <button onclick="exportToCSV()" class="export-btn">⬇️ Export CSV</button>
+            </div>
+        </div>
+
+        <div id="message"></div>
+
+        <div id="photoModal" class="photo-modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closePhotoModal()">&times;</span>
+                <h3 id="photoTitle">Captured Photo</h3>
+                <img id="photoImage" class="modal-image" src="" alt="Captured photo">
+            </div>
+        </div>
+
+        <div class="stats" id="statsContainer" style="display: none;">
+            <div class="stat-card">
+                <h3 id="totalPresent">0</h3>
+                <p>Present</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalCheckedOut">0</h3>
+                <p>Checked Out</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalFullDay">0</h3>
+                <p>Full Day</p>
+            </div>
+        </div>
+
+        <div class="records-container">
+            <div id="loading" class="loading" style="display: none;">⏳ Loading attendance records...</div>
+            <div id="recordsContent">
+                <div class="no-records">Select a date and click "View Attendance" to see the records.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        let currentData = null;
+
+        // Set today's date as default
+        window.addEventListener('load', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateInput').value = today;
+        });
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        async function fetchAttendance() {
+            const dateInput = document.getElementById('dateInput').value;
+            
+            if (!dateInput) {
+                showMessage('❌ Please select a date', 'error');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const recordsContent = document.getElementById('recordsContent');
+            
+            loading.style.display = 'block';
+            recordsContent.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_URL}/attendance-by-date/${dateInput}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('📊 Received attendance data:', data);
+                console.log('Number of records:', data.total_records);
+                if (data.records && data.records.length > 0) {
+                    console.log('First record fields:', Object.keys(data.records[0]));
+                    console.log('First record check_in_image:', data.records[0].check_in_image ? 'Present (' + data.records[0].check_in_image.substring(0, 50) + '...)' : 'NULL/MISSING');
+                    console.log('First record check_out_image:', data.records[0].check_out_image ? 'Present (' + data.records[0].check_out_image.substring(0, 50) + '...)' : 'NULL/MISSING');
+                }
+                currentData = data;
+
+                if (data.total_records === 0) {
+                    recordsContent.innerHTML = '<div class="no-records">No attendance records found for this date.</div>';
+                    document.getElementById('statsContainer').style.display = 'none';
+                } else {
+                    displayRecords(data);
+                    displayStats(data);
+                }
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showMessage(`❌ Error fetching attendance: ${error.message}`, 'error');
+                recordsContent.innerHTML = '<div class="no-records">Failed to load attendance records.</div>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayRecords(data) {
+            const recordsContent = document.getElementById('recordsContent');
+            const records = data.records || [];
+
+            let html = `
+                <h2 style="margin-bottom: 20px; color: #333;">
+                    Attendance for ${formatDate(data.date)} (${records.length} records)
+                </h2>
+                <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Designation</th>
+                            <th>Check-In<br/>(Photo & Time)</th>
+                            <th>Check-Out<br/>(Photo & Time)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            records.forEach((record, index) => {
+                const checkInTime = record.check_in ? new Date(record.check_in).toLocaleTimeString() : '-';
+                const checkOutTime = record.check_out ? new Date(record.check_out).toLocaleTimeString() : '-';
+                const statusBadge = getStatusBadge(record.status);
+                
+                // Debug logging
+                console.log(`Record ${index}:`, {
+                    name: record.name,
+                    hasCheckInImage: !!record.check_in_image,
+                    hasCheckOutImage: !!record.check_out_image,
+                    checkInImageLength: record.check_in_image ? record.check_in_image.substring(0, 50) : 'null',
+                    checkOutImageLength: record.check_out_image ? record.check_out_image.substring(0, 50) : 'null'
+                });
+                
+                // Display check-in photo with click to view
+                let checkInHtml;
+                if (record.check_in_image && record.check_in_image.trim()) {
+                    const imageSrc = `data:image/jpeg;base64,${record.check_in_image}`;
+                    checkInHtml = `
+                        <div style="text-align: center;">
+                            <img class="employee-photo" src="${imageSrc}" alt="Check-in ${record.name}" onclick="openPhotoModal('${imageSrc}', '${record.name} - Check-In')">
+                            <div class="time" style="margin-top: 8px;">${checkInTime}</div>
+                        </div>
+                    `;
+                } else {
+                    checkInHtml = `
+                        <div style="text-align: center;">
+                            <span class="no-photo">No photo</span>
+                            <div class="time" style="margin-top: 8px;">${checkInTime}</div>
+                        </div>
+                    `;
+                }
+
+                // Display check-out photo with click to view
+                let checkOutHtml;
+                if (record.check_out_image && record.check_out_image.trim()) {
+                    const imageSrc = `data:image/jpeg;base64,${record.check_out_image}`;
+                    checkOutHtml = `
+                        <div style="text-align: center;">
+                            <img class="employee-photo" src="${imageSrc}" alt="Check-out ${record.name}" onclick="openPhotoModal('${imageSrc}', '${record.name} - Check-Out')">
+                            <div class="time" style="margin-top: 8px;">${checkOutTime}</div>
+                        </div>
+                    `;
+                } else {
+                    checkOutHtml = `
+                        <div style="text-align: center;">
+                            <span class="no-photo">${checkOutTime === '-' ? 'Not checked out' : 'No photo'}</span>
+                            <div class="time" style="margin-top: 8px;">${checkOutTime}</div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <tr>
+                        <td><strong>${index + 1}</strong></td>
+                        <td><strong>${record.name}</strong></td>
+                        <td>${record.designation || 'N/A'}</td>
+                        <td>${checkInHtml}</td>
+                        <td>${checkOutHtml}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+                </div>
+            `;
+
+            recordsContent.innerHTML = html;
+        }
+
+        function displayStats(data) {
+            const records = data.records || [];
+            const statsContainer = document.getElementById('statsContainer');
+
+            const totalPresent = records.length;
+            const totalCheckedOut = records.filter(r => r.check_out).length;
+            const totalFullDay = records.filter(r => r.status === 'full_day').length;
+
+            document.getElementById('totalPresent').textContent = totalPresent;
+            document.getElementById('totalCheckedOut').textContent = totalCheckedOut;
+            document.getElementById('totalFullDay').textContent = totalFullDay;
+
+            statsContainer.style.display = 'grid';
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'full_day': '<span class="status-badge status-full">Full Day</span>',
+                'half_day': '<span class="status-badge status-half">Half Day</span>',
+                'partial': '<span class="status-badge status-partial">Partial</span>'
+            };
+            return badges[status] || '<span class="status-badge status-partial">Other</span>';
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00Z');
+            return date.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function openPhotoModal(photoSrc, photoTitle) {
+            const modal = document.getElementById('photoModal');
+            document.getElementById('photoImage').src = photoSrc;
+            document.getElementById('photoTitle').textContent = photoTitle;
+            modal.style.display = 'block';
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('photoModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function exportToCSV() {
+            if (!currentData || currentData.total_records === 0) {
+                showMessage('❌ No data to export', 'error');
+                return;
+            }
+
+            const records = currentData.records || [];
+            let csv = 'Date,Name,Designation,Check-In,Check-Out,Status\n';
+
+            records.forEach(record => {
+                const checkIn = record.check_in ? new Date(record.check_in).toLocaleString() : '-';
+                const checkOut = record.check_out ? new Date(record.check_out).toLocaleString() : '-';
+                
+                csv += `"${currentData.date}","${record.name}","${record.designation}","${checkIn}","${checkOut}","${record.status}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `attendance_${currentData.date}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showMessage('✅ CSV exported successfully', 'success');
+        }
+
+        // Allow pressing Enter to fetch attendance
+        document.getElementById('dateInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                fetchAttendance();
+            }
+        });
+    </script>
+</body>
+</html>
